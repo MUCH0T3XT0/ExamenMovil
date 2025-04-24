@@ -15,25 +15,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.app.examenmovil.domain.model.Example
-import com.app.examenmovil.presentation.screens.home.components.ExampleListContent
+import com.app.examenmovil.domain.model.Sudoku
+import com.app.examenmovil.presentation.screens.home.components.GeneratorButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun HomeScreen(
-    onExampleClick: (String) -> Unit,
+    onNavigateClick: (String) -> Unit,
+    onNavigateToPuzzle: (Int, Int, String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val tabs = listOf("Pokémon List", "Search")
     // Datos mock
-    val mockExampleList = remember { Example.getMockData() }
+    val mockSudoku = remember { Sudoku.getMockData() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Examen movil") },
+                title = { Text("Mi Acertijo") },
             )
         },
     ) { padding ->
@@ -44,24 +44,11 @@ fun HomeScreen(
                     .padding(padding),
         ) {
             // Datos Mock
-            /*
-            ExampleListContent(
-                exampleList = mockExampleList,
-                isLoading = false,
-                error = null,
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it },
-                onExampleClick = onExampleClick,
-            )
-             */
-            // Datos reales
-            ExampleListContent(
-                exampleList = uiState.exampleList,
-                isLoading = uiState.isLoading,
-                error = uiState.error,
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it },
-                onExampleClick = onExampleClick,
+            GeneratorButton(
+                onNavigate = { num1, num2, keyword ->
+                    // Aquí llama tu función de navegación con los datos
+                    onNavigateToPuzzle(num1, num2, keyword) // ejemplo simple
+                },
             )
         }
     }

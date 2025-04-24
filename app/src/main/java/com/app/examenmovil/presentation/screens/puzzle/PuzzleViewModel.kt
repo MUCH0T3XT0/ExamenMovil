@@ -1,30 +1,33 @@
-package com.app.examenmovil.presentation.screens.home
+package com.app.examenmovil.presentation.screens.puzzle
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.app.examenmovil.domain.common.Result
 import com.app.examenmovil.domain.usecase.GetGeneratePuzzleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel
+class PuzzleViewModel
     @Inject
     constructor(
         private val getGeneratePuzzleUseCase: GetGeneratePuzzleUseCase,
     ) : ViewModel() {
-        private val _uiState = MutableStateFlow(HomeUiState())
-        val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(PuzzleUiState())
+        val uiState: StateFlow<PuzzleUiState> = _uiState.asStateFlow()
 
-        /*init {
-            loadExampleList()
-        }
-         */
-    /*
-        private fun loadExampleList() {
+        fun getPuzzle(
+            columna: Int,
+            fila: Int,
+            dificultad: String,
+        ) {
             viewModelScope.launch {
-                getGeneratePuzzleUseCase.collect { result ->
+                getGeneratePuzzleUseCase(columna, fila, dificultad).collect { result ->
                     _uiState.update { state ->
                         when (result) {
                             is Result.Loading -> state.copy(isLoading = true)
@@ -45,5 +48,21 @@ class HomeViewModel
             }
         }
 
-     */
+        // Nueva función para actualizar el puzzle en el estado
+        fun updateCell(
+            row: Int,
+            col: Int,
+            value: Int?,
+        ) {
+            _uiState.update { state ->
+                val updatedPuzzle =
+                    state.sudoku.puzzle.toMutableList().apply {
+                        this[row] =
+                            this[row].toMutableList().apply {
+                                this[col] = value
+                            }
+                    }
+                state.copy(sudoku = state.sudoku.copy(puzzle = updatedPuzzle))
+            }
+        }
     }

@@ -1,8 +1,8 @@
-package com.app.examenmovil.presentation.screens.home
+package com.app.examenmovil.presentation.screens.puzzle
 
 import com.app.examenmovil.domain.model.Sudoku
 
-data class HomeUiState(
+data class PuzzleUiState(
     val sudoku: Sudoku =
         Sudoku(
             puzzle = emptyList(),
