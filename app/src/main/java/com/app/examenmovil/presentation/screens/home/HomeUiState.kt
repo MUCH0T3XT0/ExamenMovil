@@ -1,9 +1,13 @@
 package com.app.examenmovil.presentation.screens.home
 
-import com.app.examenmovil.domain.model.Example
+import com.app.examenmovil.domain.model.Sudoku
 
 data class HomeUiState(
-    val exampleList: Example = Example(score = 0.0, text = "", sentiment = ""),
+    val sudoku: Sudoku =
+        Sudoku(
+            puzzle = emptyList(),
+            solution = emptyList(),
+        ),
     val isLoading: Boolean = false,
     val error: String? = null,
 )
