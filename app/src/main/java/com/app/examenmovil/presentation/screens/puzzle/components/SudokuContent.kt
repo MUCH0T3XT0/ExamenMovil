@@ -29,22 +29,41 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.examenmovil.domain.common.PrefsManager
+import com.app.examenmovil.domain.model.SavedSudoku
 import com.app.examenmovil.domain.model.Sudoku
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-fun SudokuContent(sudoku: Sudoku) {
+fun SudokuContent(
+    sudoku: Sudoku,
+    onBackClick: (String) -> Unit,
+    saveSudoku: SavedSudoku? = null, // Parámetro opcional para recibir el SavedSudoku
+) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
+
+    // Usa 'saveSudoku' si está disponible, de lo contrario usa el 'sudoku' recibido
+    val puzzleToUse = saveSudoku?.puzzle ?: sudoku.puzzle
+    val solutionToUse = saveSudoku?.solution ?: sudoku.solution
+
     // Estado mutable para el puzzle (permite modificar los valores)
     var puzzleState by remember {
         mutableStateOf(
-            sudoku.puzzle!!.map { it.toMutableList() },
+            puzzleToUse!!.map { it.toMutableList() },
         )
     }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    val editableCells =
+        remember {
+            puzzleToUse!!.map { row ->
+                row.map { it == null }
+            }
+        }
     val cellSize = 48.dp
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -66,13 +85,13 @@ fun SudokuContent(sudoku: Sudoku) {
     // Verificar si el puzzle es correcto
     fun checkPuzzle(): Boolean {
         println("Comprobando el puzzle...")
-        println(sudoku.solution)
+        println(solutionToUse)
         println(puzzleState)
         for (rowIndex in puzzleState.indices) {
             val row = puzzleState[rowIndex]
             for (colIndex in row.indices) {
                 val userValue = row[colIndex]
-                val solutionValue = sudoku.solution[rowIndex][colIndex]
+                val solutionValue = solutionToUse[rowIndex][colIndex]
                 println("[$rowIndex][$colIndex] -> Usuario: $userValue, Solución: $solutionValue")
                 if (userValue != solutionValue) {
                     println("❌ Mismatch en [$rowIndex][$colIndex]")
@@ -97,8 +116,8 @@ fun SudokuContent(sudoku: Sudoku) {
     Box(modifier = Modifier.fillMaxSize()) {
         println("Sudoku recibido:")
         println(sudoku)
-        val rowCount = sudoku.puzzle!!.size
-        val colCount = sudoku.puzzle.firstOrNull()?.size ?: 0
+        val rowCount = puzzleToUse!!.size
+        val colCount = puzzleToUse.firstOrNull()?.size ?: 0
         val cellSize =
             when {
                 rowCount <= 4 -> 60.dp
@@ -158,7 +177,7 @@ fun SudokuContent(sudoku: Sudoku) {
                                                 updatePuzzleCell(row, col, if (newValue.isEmpty()) null else intValue)
                                             }
                                         },
-                                        enabled = false,
+                                        enabled = editableCells[row][col],
                                         textStyle =
                                             MaterialTheme.typography.bodyMedium.copy(
                                                 fontSize = 14.sp,
@@ -193,18 +212,53 @@ fun SudokuContent(sudoku: Sudoku) {
             ) {
                 Text("Verificar Puzzle")
             }
+            // Botón para reiniciar el juego
+            Button(
+                onClick = {
+                    puzzleState = puzzleToUse!!.map { it.toMutableList() } // Reinicia el puzzle
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+            ) {
+                Text("Reiniciar Juego")
+            }
+            val context = LocalContext.current
+            val prefsManager = remember { PrefsManager(context) }
+            Button(
+                onClick = {
+                    prefsManager.savePuzzle(puzzleState, puzzleToUse, solutionToUse)
+                    showSuccessDialog = true
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+            ) {
+                Text("Guardar y volver")
+            }
         }
     }
 
-    // Mostrar el popup con el resultado
-    if (showDialog) {
+    if (showSuccessDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Resultado de la verificación") },
-            text = { Text(dialogMessage) },
+            onDismissRequest = { showSuccessDialog = false },
+            title = { Text("Partida guardada") },
+            text = { Text("✅ Tu partida fue guardada exitosamente.") },
             confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("Cerrar")
+                TextButton(onClick = {
+                    showSuccessDialog = false
+                    onBackClick("home") // Regresar al Home
+                }) {
+                    Text("Volver al inicio")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showSuccessDialog = false
+                }) {
+                    Text("Aceptar")
                 }
             },
         )

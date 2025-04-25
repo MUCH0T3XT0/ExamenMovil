@@ -64,5 +64,25 @@ fun Nav(
                 onBackClick = { navController.popBackStack() },
             )
         }
+        composable(
+            route = Screen.Puzzle.route,
+            arguments =
+                listOf(
+                    navArgument("num1") { type = NavType.IntType },
+                    navArgument("num2") { type = NavType.IntType },
+                    navArgument("keyword") { type = NavType.StringType },
+                ),
+        ) { backStackEntry ->
+            val num1 = backStackEntry.arguments?.getInt("num1") ?: 0
+            val num2 = backStackEntry.arguments?.getInt("num2") ?: 0
+            val keyword = backStackEntry.arguments?.getString("keyword") ?: ""
+
+            PuzzleScreen(
+                fila = num1,
+                columna = num2,
+                dificultad = keyword,
+                onBackClick = { navController.popBackStack() },
+            )
+        }
     }
 }

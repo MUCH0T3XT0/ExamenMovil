@@ -82,7 +82,7 @@ fun GeneratorButton(onNavigate: (Int, Int, String) -> Unit) {
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Ir a otra pantalla")
+            Text("Generar Puzzle")
         }
 
         // Mostrar mensaje de error
