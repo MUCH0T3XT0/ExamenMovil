@@ -1,8 +1,8 @@
 package com.app.examenmovil.domain.model
 
 data class Sudoku(
-    val puzzle: List<List<Int?>>,
-    val solution: List<List<Int>>,
+    val puzzle: List<List<Int?>>?,
+    val solution: List<List<Int?>>,
 ) {
     companion object {
         fun getMockData(): Sudoku {

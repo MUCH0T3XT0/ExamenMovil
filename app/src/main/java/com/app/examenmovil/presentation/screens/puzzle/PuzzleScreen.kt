@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,7 +36,7 @@ fun PuzzleScreen(
     var searchQuery by remember { mutableStateOf("") }
     // Datos mock
     val mockSudoku = remember { Sudoku.getMockData() }
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     LaunchedEffect(fila, columna, dificultad) {
         viewModel.getPuzzle(fila, columna, dificultad)
     }
@@ -68,13 +71,25 @@ fun PuzzleScreen(
             )
              */
             // Datos reales
-            SudokuContent(
-                sudoku = uiState.sudoku,
-                isLoading = uiState.isLoading,
-                error = uiState.error,
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it },
-            )
+            when {
+                uiState.isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                }
+                uiState.error != null -> {
+                    Text(
+                        text = uiState.error ?: "Error desconocido",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                }
+                uiState.sudoku.puzzle != null -> {
+                    SudokuContent(
+                        sudoku = uiState.sudoku,
+                    )
+                }
+            }
         }
     }
 }

@@ -4,10 +4,7 @@ import com.app.examenmovil.domain.model.Sudoku
 
 data class PuzzleUiState(
     val sudoku: Sudoku =
-        Sudoku(
-            puzzle = emptyList(),
-            solution = emptyList(),
-        ),
+        Sudoku(emptyList(), emptyList()),
     val isLoading: Boolean = false,
     val error: String? = null,
 )

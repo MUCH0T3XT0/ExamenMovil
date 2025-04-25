@@ -16,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,17 +36,15 @@ import com.app.examenmovil.domain.model.Sudoku
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-fun SudokuContent(
-    sudoku: Sudoku,
-    isLoading: Boolean,
-    error: String?,
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-) {
+fun SudokuContent(sudoku: Sudoku) {
     var showDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
     // Estado mutable para el puzzle (permite modificar los valores)
-    var puzzleState by remember { mutableStateOf(sudoku.puzzle.map { it.toMutableList() }) }
+    var puzzleState by remember {
+        mutableStateOf(
+            sudoku.puzzle!!.map { it.toMutableList() },
+        )
+    }
     val cellSize = 48.dp
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -98,132 +95,118 @@ fun SudokuContent(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        when {
-            isLoading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        println("Sudoku recibido:")
+        println(sudoku)
+        val rowCount = sudoku.puzzle!!.size
+        val colCount = sudoku.puzzle.firstOrNull()?.size ?: 0
+        val cellSize =
+            when {
+                rowCount <= 4 -> 60.dp
+                rowCount <= 9 -> 48.dp
+                rowCount <= 16 -> 40.dp
+                else -> 32.dp
             }
-            error != null -> {
-                Text(
-                    text = error,
-                    modifier = Modifier.align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.error,
-                )
+        val scrollPercent =
+            remember {
+                derivedStateOf {
+                    val max = verticalScrollState.maxValue.toFloat()
+                    if (max == 0f) 0f else verticalScrollState.value / max
+                }
             }
-            else -> {
-                println("🔍 Sudoku recibido:")
-                println(sudoku)
-                val rowCount = sudoku.puzzle.size
-                val colCount = sudoku.puzzle.firstOrNull()?.size ?: 0
-                val cellSize =
-                    when {
-                        rowCount <= 4 -> 60.dp
-                        rowCount <= 9 -> 48.dp
-                        rowCount <= 16 -> 40.dp
-                        else -> 32.dp
-                    }
-                val scrollPercent =
-                    remember {
-                        derivedStateOf {
-                            val max = verticalScrollState.maxValue.toFloat()
-                            if (max == 0f) 0f else verticalScrollState.value / max
-                        }
-                    }
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                ) {
-                    Text(
-                        text = "Puzzle ${rowCount}x$colCount",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    Box(
-                        modifier =
-                            Modifier
-                                .verticalScroll(verticalScrollState)
-                                .horizontalScroll(horizontalScrollState)
-                                .border(2.dp, Color.Gray),
-                    ) {
-                        Column {
-                            for (row in 0 until rowCount) {
-                                Row {
-                                    for (col in 0 until colCount) {
-                                        val value = puzzleState[row][col]
-                                        val blockColor =
-                                            if ((row / 4 + col / 4) % 2 == 0) {
-                                                Color(0xFFF0F0F0)
-                                            } else {
-                                                Color.White
-                                            }
-                                        Box(
-                                            modifier =
-                                                Modifier
-                                                    .padding(2.dp)
-                                                    .size(cellSize)
-                                                    .background(blockColor),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            OutlinedTextField(
-                                                value = value?.toString() ?: "",
-                                                onValueChange = { newValue ->
-                                                    val intValue = newValue.toIntOrNull()
-                                                    if (intValue != null || newValue.isEmpty()) {
-                                                        updatePuzzleCell(row, col, if (newValue.isEmpty()) null else intValue)
-                                                    }
-                                                },
-                                                enabled = true,
-                                                textStyle =
-                                                    MaterialTheme.typography.bodyMedium.copy(
-                                                        fontSize = 14.sp,
-                                                        textAlign = TextAlign.Center,
-                                                        color = Color.Black,
-                                                    ),
-                                                modifier = Modifier.fillMaxSize(),
-                                            )
-                                        }
-                                        Box(
-                                            modifier =
-                                                Modifier
-                                                    .padding(end = 2.dp)
-                                                    .width(4.dp)
-                                                    .fillMaxHeight(scrollPercent.value)
-                                                    .background(Color.Gray.copy(alpha = 0.5f)),
-                                        )
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+        ) {
+            Text(
+                text = "Puzzle ${rowCount}x$colCount",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .verticalScroll(verticalScrollState)
+                        .horizontalScroll(horizontalScrollState)
+                        .border(2.dp, Color.Gray),
+            ) {
+                Column {
+                    for (row in 0 until rowCount) {
+                        Row {
+                            for (col in 0 until colCount) {
+                                val value = puzzleState[row][col]
+                                val blockColor =
+                                    if ((row / 4 + col / 4) % 2 == 0) {
+                                        Color(0xFFF0F0F0)
+                                    } else {
+                                        Color.White
                                     }
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .padding(2.dp)
+                                            .size(cellSize)
+                                            .background(blockColor),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    OutlinedTextField(
+                                        value = value?.toString() ?: "",
+                                        onValueChange = { newValue ->
+                                            val intValue = newValue.toIntOrNull()
+                                            if (intValue != null || newValue.isEmpty()) {
+                                                updatePuzzleCell(row, col, if (newValue.isEmpty()) null else intValue)
+                                            }
+                                        },
+                                        enabled = false,
+                                        textStyle =
+                                            MaterialTheme.typography.bodyMedium.copy(
+                                                fontSize = 14.sp,
+                                                textAlign = TextAlign.Center,
+                                                color = Color.Black,
+                                            ),
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
                                 }
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .padding(end = 2.dp)
+                                            .width(4.dp)
+                                            .fillMaxHeight(scrollPercent.value)
+                                            .background(Color.Gray.copy(alpha = 0.5f)),
+                                )
                             }
                         }
                     }
-
-                    // Botón para verificar el puzzle
-                    Button(
-                        onClick = { showCheckResult() },
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp)
-                                .align(Alignment.CenterHorizontally),
-                    ) {
-                        Text("Verificar Puzzle")
-                    }
                 }
             }
-        }
 
-        // Mostrar el popup con el resultado
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text("Resultado de la verificación") },
-                text = { Text(dialogMessage) },
-                confirmButton = {
-                    TextButton(onClick = { showDialog = false }) {
-                        Text("Cerrar")
-                    }
-                },
-            )
+            // Botón para verificar el puzzle
+            Button(
+                onClick = { showCheckResult() },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .align(Alignment.CenterHorizontally),
+            ) {
+                Text("Verificar Puzzle")
+            }
         }
+    }
+
+    // Mostrar el popup con el resultado
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Resultado de la verificación") },
+            text = { Text(dialogMessage) },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cerrar")
+                }
+            },
+        )
     }
 }

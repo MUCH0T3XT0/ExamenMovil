@@ -37,6 +37,7 @@ class PuzzleViewModel
                                     isLoading = false,
                                     error = null,
                                 )
+
                             is Result.Error ->
                                 state.copy(
                                     error = result.exception.message,
@@ -45,24 +46,6 @@ class PuzzleViewModel
                         }
                     }
                 }
-            }
-        }
-
-        // Nueva función para actualizar el puzzle en el estado
-        fun updateCell(
-            row: Int,
-            col: Int,
-            value: Int?,
-        ) {
-            _uiState.update { state ->
-                val updatedPuzzle =
-                    state.sudoku.puzzle.toMutableList().apply {
-                        this[row] =
-                            this[row].toMutableList().apply {
-                                this[col] = value
-                            }
-                    }
-                state.copy(sudoku = state.sudoku.copy(puzzle = updatedPuzzle))
             }
         }
     }
