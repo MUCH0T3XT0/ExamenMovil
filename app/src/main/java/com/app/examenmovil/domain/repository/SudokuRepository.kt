@@ -2,7 +2,7 @@ package com.app.examenmovil.domain.repository
 
 import com.app.examenmovil.domain.model.Sudoku
 
-interface ExampleRepository {
+interface SudokuRepository {
     suspend fun getSudoku(
         columna: Int,
         fila: Int,

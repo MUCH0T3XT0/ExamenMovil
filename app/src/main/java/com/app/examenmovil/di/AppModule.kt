@@ -2,7 +2,7 @@ package com.app.examenmovil.di
 
 import com.app.examenmovil.data.remote.api.SudokuApi
 import com.app.examenmovil.data.repository.SudokuRepositoryImpl
-import com.app.examenmovil.domain.repository.ExampleRepository
+import com.app.examenmovil.domain.repository.SudokuRepository
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -54,5 +54,5 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideExampleRepository(api: SudokuApi): ExampleRepository = SudokuRepositoryImpl(api)
+    fun provideExampleRepository(api: SudokuApi): SudokuRepository = SudokuRepositoryImpl(api)
 }

@@ -2,7 +2,7 @@ package com.app.examenmovil.domain.usecase
 
 import com.app.examenmovil.domain.common.Result
 import com.app.examenmovil.domain.model.Sudoku
-import com.app.examenmovil.domain.repository.ExampleRepository
+import com.app.examenmovil.domain.repository.SudokuRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -11,7 +11,7 @@ class GetGeneratePuzzleUseCase
     @Inject
     constructor(
         // Inyectado por Hilt
-        private val repository: ExampleRepository,
+        private val repository: SudokuRepository,
     ) {
         // Puede ser llamado como useCase()
         operator fun invoke(

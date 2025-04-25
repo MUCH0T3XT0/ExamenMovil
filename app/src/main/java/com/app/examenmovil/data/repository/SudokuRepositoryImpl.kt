@@ -3,7 +3,7 @@ package com.app.examenmovil.data.repository
 import android.util.Log
 import com.app.examenmovil.data.remote.api.SudokuApi
 import com.app.examenmovil.domain.model.Sudoku
-import com.app.examenmovil.domain.repository.ExampleRepository
+import com.app.examenmovil.domain.repository.SudokuRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,7 +12,7 @@ class SudokuRepositoryImpl
     @Inject
     constructor(
         private val api: SudokuApi,
-    ) : ExampleRepository {
+    ) : SudokuRepository {
         override suspend fun getSudoku(
             columna: Int,
             fila: Int,

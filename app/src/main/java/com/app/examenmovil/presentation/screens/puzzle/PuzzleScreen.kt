@@ -87,6 +87,7 @@ fun PuzzleScreen(
                 uiState.sudoku.puzzle != null -> {
                     SudokuContent(
                         sudoku = uiState.sudoku,
+                        onBackClick = { onBackClick("home") },
                     )
                 }
             }
